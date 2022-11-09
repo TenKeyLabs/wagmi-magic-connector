@@ -4,7 +4,7 @@ import {
   MagicSDKAdditionalConfiguration,
   SDKBase,
 } from '@magic-sdk/provider';
-import {Chain, normalizeChainId, UserRejectedRequestError} from '@wagmi/core';
+import { Chain, normalizeChainId, UserRejectedRequestError } from '@wagmi/core';
 import { Magic } from 'magic-sdk';
 
 import { MagicConnector, MagicOptions } from './magicConnector';
@@ -64,7 +64,7 @@ export class MagicAuthConnector extends MagicConnector {
       let chainId: number;
       try {
         chainId = await this.getChainId();
-      } catch(e) {
+      } catch (e) {
         chainId = 0;
       }
 
@@ -110,6 +110,9 @@ export class MagicAuthConnector extends MagicConnector {
             phoneNumber: output.phoneNumber,
           });
         }
+
+        const metadata = await magic.user.getMetadata();
+        this.address = metadata.publicAddress;
 
         const signer = await this.getSigner();
         const account = await signer.getAddress();
