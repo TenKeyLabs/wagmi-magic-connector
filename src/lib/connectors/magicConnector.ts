@@ -2,7 +2,7 @@ import { ConnectExtension } from '@magic-ext/connect';
 import { OAuthExtension, OAuthProvider } from '@magic-ext/oauth';
 import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
 import { RPCProviderModule } from '@magic-sdk/provider/dist/types/modules/rpc-provider';
-import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
+import { Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
 import { AbstractProvider } from 'web3-core';
@@ -37,20 +37,15 @@ export abstract class MagicConnector extends Connector {
   isModalOpen = false;
 
   magicOptions: MagicOptions;
+  address: `0x${string}`;
 
   protected constructor(config: { chains?: Chain[]; options: MagicOptions }) {
     super(config);
     this.magicOptions = config.options;
   }
 
-  async getAccount(): Promise<Address> {
-    const provider = new ethers.providers.Web3Provider(
-      await this.getProvider()
-    );
-    const signer = provider.getSigner();
-    const account = await signer.getAddress();
-    if (account.startsWith('0x')) return account as Address;
-    return `0x${account}`;
+  async getAccount(): Promise<`0x${string}`> {
+    return this.address;
   }
 
   async getUserDetailsByForm(
@@ -81,18 +76,29 @@ export abstract class MagicConnector extends Connector {
     return this.provider;
   }
 
+  signer: Signer;
+
   async getSigner(): Promise<Signer> {
     const provider = new ethers.providers.Web3Provider(
       await this.getProvider()
     );
-    const signer = await provider.getSigner();
-    return signer;
+
+    this.signer = provider.getSigner(this.address);
+    return this.signer;
   }
 
   async isAuthorized() {
     const magic = this.getMagicSDK();
+
     try {
-      return await magic.user.isLoggedIn();
+      const loggedIn = await magic.user.isLoggedIn();
+
+      if (loggedIn) {
+        const metadata = await magic.user.getMetadata();
+        this.address = getAddress(metadata.publicAddress);
+      }
+
+      return loggedIn;
     } catch (e) {
       return false;
     }
@@ -116,6 +122,7 @@ export abstract class MagicConnector extends Connector {
   async disconnect(): Promise<void> {
     const magic = this.getMagicSDK();
     await magic.user.logout();
+    this.address = undefined;
   }
 
   abstract getMagicSDK():

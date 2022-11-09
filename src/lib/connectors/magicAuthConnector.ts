@@ -11,6 +11,7 @@ import {
   normalizeChainId,
   UserRejectedRequestError,
 } from '@wagmi/core';
+import { getAddress } from 'ethers/lib/utils.js';
 import { Magic } from 'magic-sdk';
 
 import { MagicConnector, MagicOptions } from './magicConnector';
@@ -118,6 +119,9 @@ export class MagicAuthConnector extends MagicConnector {
             phoneNumber: output.phoneNumber,
           });
         }
+
+        const metadata = await magic.user.getMetadata();
+        this.address = getAddress(metadata.publicAddress);
 
         const signer = await this.getSigner();
         let account = (await signer.getAddress()) as Address;
