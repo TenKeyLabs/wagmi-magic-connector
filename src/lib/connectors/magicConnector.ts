@@ -37,6 +37,7 @@ export abstract class MagicConnector extends Connector {
   isModalOpen = false;
 
   magicOptions: MagicOptions;
+  address: string;
 
   protected constructor(config: { chains?: Chain[]; options: MagicOptions }) {
     super(config);
@@ -44,12 +45,7 @@ export abstract class MagicConnector extends Connector {
   }
 
   async getAccount(): Promise<string> {
-    const provider = new ethers.providers.Web3Provider(
-      await this.getProvider()
-    );
-    const signer = provider.getSigner();
-    const account = await signer.getAddress();
-    return account;
+    return this.address;
   }
 
   async getUserDetailsByForm(
@@ -80,19 +76,29 @@ export abstract class MagicConnector extends Connector {
     return this.provider;
   }
 
+  signer: Signer;
+
   async getSigner(): Promise<Signer> {
     const provider = new ethers.providers.Web3Provider(
       await this.getProvider()
     );
-    const signer = await provider.getSigner();
-    return signer;
+
+    this.signer = provider.getSigner(this.address);
+    return this.signer;
   }
 
   async isAuthorized() {
     const magic = this.getMagicSDK();
-    try {
-      return await magic.user.isLoggedIn();
 
+    try {
+      const loggedIn = await magic.user.isLoggedIn();
+
+      if (loggedIn) {
+        const metadata = await magic.user.getMetadata();
+        this.address = getAddress(metadata.publicAddress);
+      }
+
+      return loggedIn;
     } catch (e) {
       return false;
     }
@@ -116,6 +122,7 @@ export abstract class MagicConnector extends Connector {
   async disconnect(): Promise<void> {
     const magic = this.getMagicSDK();
     await magic.user.logout();
+    this.address = undefined;
   }
 
   abstract getMagicSDK():
