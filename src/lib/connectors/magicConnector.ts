@@ -2,10 +2,10 @@ import { ConnectExtension } from '@magic-ext/connect';
 import { OAuthExtension, OAuthProvider } from '@magic-ext/oauth';
 import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
 import { RPCProviderModule } from '@magic-sdk/provider/dist/types/modules/rpc-provider';
-import { Chain, Connector, normalizeChainId } from '@wagmi/core';
+import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
-import { AbstractProvider } from 'web3-core';
+import type { AbstractProvider } from 'web3-core';
 
 import { createModal } from '../modal/view';
 
@@ -37,15 +37,15 @@ export abstract class MagicConnector extends Connector {
   isModalOpen = false;
 
   magicOptions: MagicOptions;
-  address: string;
+  address: Address;
 
   protected constructor(config: { chains?: Chain[]; options: MagicOptions }) {
     super(config);
     this.magicOptions = config.options;
   }
 
-  async getAccount(): Promise<string> {
-    return this.address;
+  async getAccount(): Promise<Address> {
+    return getAddress(this.address);
   }
 
   async getUserDetailsByForm(

@@ -4,7 +4,13 @@ import {
   MagicSDKAdditionalConfiguration,
   SDKBase,
 } from '@magic-sdk/provider';
-import { Chain, normalizeChainId, UserRejectedRequestError } from '@wagmi/core';
+import {
+  Chain,
+  ConnectorData,
+  normalizeChainId,
+  UserRejectedRequestError,
+} from '@wagmi/core';
+import { getAddress } from 'ethers/lib/utils';
 import { Magic } from 'magic-sdk';
 
 import { MagicConnector, MagicOptions } from './magicConnector';
@@ -16,7 +22,7 @@ interface MagicConnectOptions extends MagicOptions {
   >;
 }
 
-const CONNECT_TIME_KEY = "wagmi-magic-connector.connect.time";
+const CONNECT_TIME_KEY = 'wagmi-magic-connector.connect.time';
 const CONNECT_DURATION = 604800000; // 7 days in milliseconds
 
 export class MagicConnectConnector extends MagicConnector {
@@ -32,7 +38,9 @@ export class MagicConnectConnector extends MagicConnector {
     this.magicSdkConfiguration = config.options.magicSdkConfiguration;
   }
 
-  async connect() {
+  async connect(_config?: {
+    chainId?: number;
+  }): Promise<Required<ConnectorData>> {
     try {
       const provider = await this.getProvider();
 
@@ -49,7 +57,7 @@ export class MagicConnectConnector extends MagicConnector {
       let chainId: number;
       try {
         chainId = await this.getChainId();
-      } catch(e) {
+      } catch (e) {
         chainId = 0;
       }
 
@@ -77,11 +85,14 @@ export class MagicConnectConnector extends MagicConnector {
           });
 
           const signer = await this.getSigner();
-          const account = await signer.getAddress();
+          const account = getAddress(await signer.getAddress());
 
           // As we have no way to know if a user is connected to Magic Connect we store a connect timestamp
           // in local storage
-          window.localStorage.setItem(CONNECT_TIME_KEY, String((new Date()).getTime()));
+          window.localStorage.setItem(
+            CONNECT_TIME_KEY,
+            String(new Date().getTime())
+          );
 
           return {
             account,
@@ -129,7 +140,11 @@ export class MagicConnectConnector extends MagicConnector {
     if (localStorage.getItem(CONNECT_TIME_KEY) === null) {
       return false;
     }
-    return parseInt(window.localStorage.getItem(CONNECT_TIME_KEY)) + CONNECT_DURATION > (new Date()).getTime()
+    return (
+      parseInt(window.localStorage.getItem(CONNECT_TIME_KEY)) +
+        CONNECT_DURATION >
+      new Date().getTime()
+    );
   }
 
   // Overrides disconnect because there is currently no proper way to disconnect a user from Magic
@@ -138,5 +153,4 @@ export class MagicConnectConnector extends MagicConnector {
   async disconnect(): Promise<void> {
     window.localStorage.removeItem(CONNECT_TIME_KEY);
   }
-
 }

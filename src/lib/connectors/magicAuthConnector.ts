@@ -4,7 +4,13 @@ import {
   MagicSDKAdditionalConfiguration,
   SDKBase,
 } from '@magic-sdk/provider';
-import { Chain, normalizeChainId, UserRejectedRequestError } from '@wagmi/core';
+import {
+  Chain,
+  ConnectorData,
+  normalizeChainId,
+  UserRejectedRequestError,
+} from '@wagmi/core';
+import { getAddress } from 'ethers/lib/utils';
 import { Magic } from 'magic-sdk';
 
 import { MagicConnector, MagicOptions } from './magicConnector';
@@ -47,7 +53,9 @@ export class MagicAuthConnector extends MagicConnector {
     this.enableEmailLogin = config.options.enableEmailLogin;
   }
 
-  async connect() {
+  async connect(_config?: {
+    chainId?: number;
+  }): Promise<Required<ConnectorData>> {
     try {
       const provider = await this.getProvider();
 
@@ -112,13 +120,10 @@ export class MagicAuthConnector extends MagicConnector {
         }
 
         const metadata = await magic.user.getMetadata();
-        this.address = metadata.publicAddress;
-
-        const signer = await this.getSigner();
-        const account = await signer.getAddress();
+        this.address = getAddress(metadata.publicAddress);
 
         return {
-          account,
+          account: this.address,
           chain: {
             id: chainId,
             unsupported: false,
