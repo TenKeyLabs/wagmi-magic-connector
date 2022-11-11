@@ -22,6 +22,7 @@ interface MagicAuthOptions extends MagicOptions {
     providers: OAuthProvider[];
     callbackUrl?: string;
   };
+  redirectURI?: string;
   magicSdkConfiguration?: MagicSDKAdditionalConfiguration<
     string,
     OAuthExtension[]
@@ -44,6 +45,8 @@ export class MagicAuthConnector extends MagicConnector {
 
   oauthCallbackUrl?: string;
 
+  redirectUrl?: string;
+
   constructor(config: { chains?: Chain[]; options: MagicAuthOptions }) {
     super(config);
     this.magicSdkConfiguration = config.options.magicSdkConfiguration;
@@ -51,6 +54,7 @@ export class MagicAuthConnector extends MagicConnector {
     this.oauthCallbackUrl = config.options.oauthOptions?.callbackUrl;
     this.enableSMSLogin = config.options.enableSMSLogin;
     this.enableEmailLogin = config.options.enableEmailLogin;
+    this.redirectUrl = config.options.redirectURI;
   }
 
   async connect(_config?: {
@@ -109,6 +113,7 @@ export class MagicAuthConnector extends MagicConnector {
         if (output.email) {
           await magic.auth.loginWithMagicLink({
             email: output.email,
+            redirectURI: this.redirectUrl,
           });
         }
 
