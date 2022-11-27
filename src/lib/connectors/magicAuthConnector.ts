@@ -48,6 +48,8 @@ export class MagicAuthConnector extends MagicConnector {
 
   redirectUrl?: string;
 
+  email?: string;
+
   constructor(config: { chains?: Chain[]; options: MagicAuthOptions }) {
     super(config);
     this.magicSdkConfiguration = config.options.magicSdkConfiguration;
@@ -56,6 +58,10 @@ export class MagicAuthConnector extends MagicConnector {
     this.enableSMSLogin = config.options.enableSMSLogin;
     this.enableEmailLogin = config.options.enableEmailLogin;
     this.redirectUrl = config.options.redirectURI;
+  }
+
+  setEmail(email: string) {
+    this.email = email;
   }
 
   async connect() {
@@ -93,14 +99,20 @@ export class MagicAuthConnector extends MagicConnector {
         };
       }
 
-      // open the modal and process the magic login steps
-      if (!this.isModalOpen) {
+      const magic = this.getMagicSDK();
+      if (this.email) {
+        // An email has already been set, so use it to log in
+        await magic.auth.loginWithMagicLink({
+          email: this.email,
+          redirectURI: this.redirectUrl,
+        });
+      } else if (!this.isModalOpen) {
+        // open the modal and process the magic login steps
         const output = await this.getUserDetailsByForm(
           this.enableSMSLogin,
           this.enableEmailLogin,
           this.oauthProviders
         );
-        const magic = this.getMagicSDK();
 
         // LOGIN WITH MAGIC LINK WITH OAUTH PROVIDER
         if (output.oauthProvider) {
@@ -124,7 +136,9 @@ export class MagicAuthConnector extends MagicConnector {
             phoneNumber: output.phoneNumber,
           });
         }
+      }
 
+      if (magic.user.isLoggedIn()) {
         const metadata = await magic.user.getMetadata();
         this.address = getAddress(metadata.publicAddress);
 
@@ -167,5 +181,10 @@ export class MagicAuthConnector extends MagicConnector {
       return this.magicSDK;
     }
     return this.magicSDK;
+  }
+
+  async disconnect(): Promise<void> {
+    this.email = undefined;
+    super.disconnect();
   }
 }
