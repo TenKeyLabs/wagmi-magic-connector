@@ -6,7 +6,6 @@ import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
 import type { AbstractProvider } from 'web3-core';
-
 import { createModal } from '../modal/view';
 
 const IS_SERVER = typeof window === 'undefined';
