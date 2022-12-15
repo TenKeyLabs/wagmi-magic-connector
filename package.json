@@ -27,13 +27,13 @@
     "@magic-ext/connect": "^3.0.0",
     "@magic-ext/oauth": "^4.0.0",
     "@magic-sdk/provider": "^10.0.0",
-    "@wagmi/core": "^0.6.12",
+    "@wagmi/core": "^0.8.2",
     "magic-sdk": "^10.0.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
-    "@wagmi/core": "^0.6.12",
+    "@wagmi/core": "^0.8.2",
     "changeset": "^0.2.6",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
