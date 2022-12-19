@@ -2,7 +2,7 @@ import { ConnectExtension } from '@magic-ext/connect';
 import { OAuthExtension, OAuthProvider } from '@magic-ext/oauth';
 import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
 import { RPCProviderModule } from '@magic-sdk/provider/dist/types/modules/rpc-provider';
-import { Chain, Connector, normalizeChainId } from '@wagmi/core';
+import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
 import { AbstractProvider } from 'web3-core';
@@ -25,7 +25,7 @@ interface UserDetails {
   oauthProvider: OAuthProvider;
 }
 
-export abstract class MagicConnector extends Connector {
+export abstract class MagicConnector extends Connector<any, any, any> {
   ready = !IS_SERVER;
 
   readonly id = 'magic';
@@ -37,14 +37,14 @@ export abstract class MagicConnector extends Connector {
   isModalOpen = false;
 
   magicOptions: MagicOptions;
-  address: `0x${string}`;
+  address: Address;
 
   protected constructor(config: { chains?: Chain[]; options: MagicOptions }) {
     super(config);
     this.magicOptions = config.options;
   }
 
-  async getAccount(): Promise<`0x${string}`> {
+  async getAccount(): Promise<Address> {
     return this.address;
   }
 
