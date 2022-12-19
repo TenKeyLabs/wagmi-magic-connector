@@ -2,8 +2,7 @@ import { ConnectExtension } from '@magic-ext/connect';
 import { OAuthExtension, OAuthProvider } from '@magic-ext/oauth';
 import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
 import { RPCProviderModule } from '@magic-sdk/provider/dist/types/modules/rpc-provider';
-import { Chain } from '@wagmi/chains';
-import { Address, Connector, normalizeChainId } from '@wagmi/core';
+import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
 import type { AbstractProvider } from 'web3-core';
@@ -25,7 +24,7 @@ interface UserDetails {
   oauthProvider: OAuthProvider;
 }
 
-export abstract class MagicConnector extends Connector {
+export abstract class MagicConnector extends Connector<any, any, any> {
   ready = !IS_SERVER;
 
   readonly id = 'magic';
