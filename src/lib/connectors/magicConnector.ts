@@ -1,11 +1,9 @@
 import { ConnectExtension } from '@magic-ext/connect';
 import { OAuthExtension, OAuthProvider } from '@magic-ext/oauth';
 import { InstanceWithExtensions, SDKBase } from '@magic-sdk/provider';
-import { RPCProviderModule } from '@magic-sdk/provider/dist/types/modules/rpc-provider';
 import { Address, Chain, Connector, normalizeChainId } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
-import { AbstractProvider } from 'web3-core';
 
 import { createModal } from '../modal/view';
 
@@ -32,7 +30,7 @@ export abstract class MagicConnector extends Connector<any, any, any> {
 
   readonly name = 'Magic';
 
-  provider: RPCProviderModule & AbstractProvider;
+  provider: ethers.providers.Web3Provider;
 
   isModalOpen = false;
 
@@ -72,17 +70,18 @@ export abstract class MagicConnector extends Connector<any, any, any> {
       return this.provider;
     }
     const magic = this.getMagicSDK();
-    this.provider = magic.rpcProvider;
+    this.provider = new ethers.providers.Web3Provider(magic.rpcProvider);
     return this.provider;
   }
 
   signer: Signer;
 
   async getSigner(): Promise<Signer> {
-    const provider = new ethers.providers.Web3Provider(
-      await this.getProvider()
-    );
+    if (this.signer) {
+      return this.signer;
+    }
 
+    const provider = await this.getProvider();
     this.signer = provider.getSigner(this.address);
     return this.signer;
   }
@@ -123,6 +122,8 @@ export abstract class MagicConnector extends Connector<any, any, any> {
     const magic = this.getMagicSDK();
     await magic.user.logout();
     this.address = undefined;
+    this.provider = undefined;
+    this.signer = undefined;
   }
 
   abstract getMagicSDK():
