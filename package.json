@@ -1,10 +1,10 @@
 {
   "name": "@tenkeylabs/wagmi-magic-connector",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "wagmi connector to connect with Magic SDK",
   "main": "build/module/index.js",
   "type": "module",
-  "repository": "https://github.com/EveripediaNetwork/wagmi-magic-connector",
+  "repository": "https://github.com/TenKeyLabs/wagmi-magic-connector",
   "license": "MIT",
   "keywords": [
     "wagmi",
