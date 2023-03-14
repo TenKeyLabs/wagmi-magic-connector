@@ -1,5 +1,11 @@
 # @everipedia/wagmi-magic-connector
 
+## 0.0.8
+
+### Patch Changes
+
+- 2013ad9: outputs esm instead of commonjs
+
 ## 0.0.7
 
 ### Patch Changes
