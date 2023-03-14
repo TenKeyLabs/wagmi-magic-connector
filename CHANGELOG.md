@@ -1,4 +1,4 @@
-# @everipedia/wagmi-magic-connector
+# @tenkeylabs/wagmi-magic-connector
 
 ## 0.0.8
 
