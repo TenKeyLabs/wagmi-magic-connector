@@ -1,5 +1,11 @@
 # @tenkeylabs/wagmi-magic-connector
 
+## 0.0.9
+
+### Patch Changes
+
+- c3c6972: bumps wagmi/core to 0.10.9
+
 ## 0.0.8
 
 ### Patch Changes
